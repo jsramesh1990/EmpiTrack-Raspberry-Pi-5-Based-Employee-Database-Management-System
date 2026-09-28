@@ -26,8 +26,6 @@ A modular, console-based Employee Database Management System written in pure C, 
 15. [Documentation](#15-documentation)
 16. [Troubleshooting](#16-troubleshooting)
 17. [Future Enhancements](#17-future-enhancements)
-18. [License](#18-license)
-19. [Author](#19-author)
 
 ---
 
