@@ -169,6 +169,8 @@ bash
 ./empitrack --capacity 100
 ./empitrack --silent
 
+---
+
 Menu Reference
 text
 
@@ -287,6 +289,8 @@ docs/HARDWARE_DETAILS.md	Raspberry Pi 5 hardware specification & BOM
 docs/TESTING_METHODS.md	Unit, integration, and hardware tests
 Contributing
 
+---
+
 Contributions are welcome.
 
     Fork the repository
@@ -320,10 +324,7 @@ Code Style
 
     Test changes locally before opening a PR
 
-License
-
-This project is released under the MIT License. See LICENSE for details.
-Acknowledgements
+---
 
     Raspberry Pi Foundation — hardware and OS platform
 
