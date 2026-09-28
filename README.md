@@ -1,659 +1,335 @@
-# Employee Management System
+# EmpiTrack – Raspberry Pi 5 Based Employee Database Management System
 
-![C Language](https://img.shields.io/badge/C-99%2F11%2F17-blue?style=for-the-badge&logo=c)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20WSL-lightgrey?style=for-the-badge)
-![Build](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge)
+A console-based Employee Database Management System written in **pure C**, designed to run on the **Raspberry Pi 5 (4 GB RAM)**. EmpiTrack demonstrates professional C programming practices — dynamic memory management, file handling, function pointers, modular design, and comprehensive input validation — wrapped in a clean interactive menu.
 
-[![File Handling](https://img.shields.io/badge/File%20Handling-✓-success?style=flat-square)](https://en.cppreference.com/w/c/io)
-[![Dynamic Memory](https://img.shields.io/badge/Dynamic%20Memory-✓-orange?style=flat-square)](https://en.cppreference.com/w/c/memory)
-[![Function Pointers](https://img.shields.io/badge/Function%20Pointers-✓-blueviolet?style=flat-square)](https://en.cppreference.com/w/c/language/pointer)
+![Language](https://img.shields.io/badge/language-C-blue.svg)
+![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%205-red.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Build](https://img.shields.io/badge/build-GCC%20%7C%20Make-success.svg)
 
-##  Table of Contents
-- [Overview](#-overview)
-- [Features](#-features)
-- [System Architecture](#-system-architecture)
-- [Data Structures](#-data-structures)
-- [Installation](#-installation)
-- [Compilation](#-compilation)
-- [Usage](#-usage)
-- [Code Flow](#-code-flow)
-- [File Structure](#-file-structure)
-- [API Documentation](#-api-documentation)
-- [Memory Management](#-memory-management)
-- [Testing](#-testing)
-- [Extending the System](#-extending-the-system)
-- [Troubleshooting](#-troubleshooting)
-- [License](#-license)
+---
 
-##  Overview
+## Table of Contents
 
-A comprehensive console-based Employee Management System written in pure C that demonstrates fundamental and advanced C programming concepts. This system provides a complete CRUD (Create, Read, Update, Delete) interface for managing employee records with persistent storage.
+- [Overview](#overview)
+- [Features](#features)
+- [Hardware Requirements](#hardware-requirements)
+- [Project Structure](#project-structure)
+- [Installation](#installation)
+- [Build](#build)
+- [Usage](#usage)
+- [Menu Reference](#menu-reference)
+- [Data Storage](#data-storage)
+- [Architecture](#architecture)
+- [Testing](#testing)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
-##  Features
+---
 
-###  **Core Operations**
-- **Add Employees** with detailed information
-- **Display All Employees** in formatted tables
-- **Search Employees** by ID with exact/partial matching
-- **Update Employee** information
-- **Delete Employees** from the system
-- **Save/Load Data** to/from binary/text files
-- **Export Data** to CSV format for external use
+## Overview
 
-###  **Advanced Features**
-- **Dynamic Memory Management** using `malloc`/`free`
-- **Function Pointers** for menu operations
-- **Error Handling** with comprehensive error messages
-- **Input Validation** for all user inputs
-- **Sorting Capabilities** by various fields
-- **Statistics Generation** (counts, averages, etc.)
+**EmpiTrack** is a lightweight, terminal-driven Employee Database Management System built for the Raspberry Pi 5. It provides a full **CRUD** interface (Create, Read, Update, Delete) for managing employee records, with persistent storage in a portable, human-readable database file and CSV export for external use.
 
-###  **Data Safety**
-- **Auto-save** on exit
-- **Backup Creation** before major operations
-- **Data Integrity** checks
-- **Memory Leak Prevention** with proper cleanup
+The project is intended for:
 
-##  System Architecture
+- Educational demonstration of advanced C concepts
+- Embedded / edge deployment on Raspberry Pi hardware
+- Small-scale HR record keeping on a standalone device
+- Learning structured, modular C project design
 
-```mermaid
-graph TB
-    subgraph "Core Data Layer"
-        A[Employee Structure] --> B[Employee Array]
-        B --> C[Dynamic Memory Allocation]
-    end
-    
-    subgraph "Operations Layer"
-        D[Menu System] --> E{User Selection}
-        E --> F[Add Employee]
-        E --> G[Display Employees]
-        E --> H[Search Employee]
-        E --> I[Update Employee]
-        E --> J[Delete Employee]
-        E --> K[Save/Load Files]
-        E --> L[Generate Reports]
-    end
-    
-    subgraph "Storage Layer"
-        M[File Operations] --> N[Binary File .dat]
-        M --> O[Text File .txt]
-        M --> P[CSV Export .csv]
-    end
-    
-    subgraph "Utility Layer"
-        Q[Input Validation]
-        R[Error Handling]
-        S[Memory Management]
-        T[Sorting Algorithms]
-    end
-    
-    F & G & H & I & J & K & L --> B
-    B --> M
-    Q & R & S & T --> F & G & H & I & J & K & L
-```
+---
 
-##  Data Structures
+## Features
 
-### Employee Structure
-```c
-typedef enum {
-    JUNIOR,
-    MID_LEVEL,
-    SENIOR,
-    LEAD,
-    MANAGER
-} EmployeeLevel;
+### Core Operations
+- **Add** new employees with full details (ID, name, department, salary, level, status, email, phone)
+- **Display** all employees in a formatted table
+- **Search** by ID (exact), name (partial), or department (partial)
+- **Update** employee records in-place
+- **Delete** employees with confirmation prompt
+- **Save / Load** data to/from a text database file
+- **Export** to CSV for use in Excel, LibreOffice, or Python
+- **Sort** by ID, name, salary, or department
+- **Statistics** — counts, averages, min/max salary, per-level totals
 
-typedef enum {
-    ACTIVE,
-    ON_LEAVE,
-    TERMINATED,
-    RESIGNED
-} EmployeeStatus;
+### Engineering Highlights
+- **Dynamic memory** with `malloc`, `calloc`, `realloc`, and `free` — no fixed upper limit on employee count
+- **Modular design** — separation across `employee`, `database`, `file_ops`, `menu`, `utils`
+- **Input validation** for email, phone, salary, and menu choices
+- **Auto-save on exit** and **backup creation** before destructive operations
+- **Portable text format** (`|`-delimited) with escape-safe fields
+- **Clean shutdown** — all heap memory is released (Valgrind-clean)
 
-typedef struct {
-    int id;                    // Unique identifier
-    char name[MAX_NAME_LEN];   // Employee name
-    char department[MAX_DEPT_LEN]; // Department
-    float salary;              // Monthly salary
-    EmployeeLevel level;       // Job level
-    EmployeeStatus status;     // Employment status
-    char email[MAX_EMAIL_LEN]; // Email address
-    char phone[MAX_PHONE_LEN]; // Phone number
-    time_t join_date;          // Joining date
-} Employee;
-```
+---
 
-### System Structure
-```c
-typedef struct {
-    Employee *employees;       // Dynamic array of employees
-    int count;                 // Current number of employees
-    int capacity;              // Current array capacity
-    char filename[256];        // Current data file name
-} EmployeeSystem;
-```
+## Hardware Requirements
 
-##  Installation
+| Component | Specification |
+|---|---|
+| Board | **Raspberry Pi 5 – 4 GB RAM** |
+| CPU | Broadcom BCM2712, quad-core Arm Cortex-A76 @ 2.4 GHz |
+| RAM | 4 GB LPDDR4X-4267 |
+| Storage | 32 GB+ microSD (Class A2) or NVMe SSD |
+| OS | Raspberry Pi OS 64-bit (Bookworm) |
+| Power | Official 27W USB-C PD supply (5V/5A) |
+| Cooling | Active Cooler recommended |
+| Input | USB keyboard |
+| Output | HDMI monitor |
 
-### Prerequisites
-![Requirements](https://img.shields.io/badge/Requirements-GCC%204.9%2B-blue?style=flat-square)
+Full hardware details: [`docs/HARDWARE_DETAILS.md`](docs/HARDWARE_DETAILS.md)
 
-- **GCC Compiler** (version 4.9 or higher)
-- **Make** (optional, for build automation)
-- **Git** (for cloning repository)
+---
 
-### Quick Installation
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/employee-management-system.git
-cd employee-management-system
+## Project Structure
 
-# Compile the program
-gcc -o employee_system employee_system.c
+```text
+EmpiTrack/
+├── Makefile
+├── README.md
+├── LICENSE
+├── src/
+│   ├── main.c            # Entry point, CLI argument parsing
+│   ├── employee.h/.c     # Employee struct, enums, input & display
+│   ├── database.h/.c     # Dynamic array, CRUD, search, statistics
+│   ├── file_ops.h/.c     # Save / Load / CSV export / backup
+│   ├── menu.h/.c         # Interactive menu loop
+│   └── utils.h/.c        # Validation, I/O helpers, string utilities
+├── tests/
+│   └── test_employee.c   # Unit tests
+├── data/
+│   └── employees.dat     # Runtime database file (created on first save)
+└── docs/
+    ├── BUILD_STEPS.md
+    ├── HARDWARE_DETAILS.md
+    └── TESTING_METHODS.md
 
-# Run the program
-./employee_system
-```
+Installation
+1. Update the system
+bash
 
-### Advanced Installation
-```bash
-# Compile with all warnings enabled
-gcc -Wall -Wextra -Werror -pedantic -o employee_system employee_system.c
+sudo apt update
+sudo apt full-upgrade -y
 
-# Compile with debug symbols
-gcc -g -o employee_system employee_system.c
+2. Install build tools
+bash
 
-# Compile with optimization
-gcc -O2 -o employee_system employee_system.c
-```
+sudo apt install build-essential git make gdb valgrind -y
 
-##  Compilation
+3. Clone the repository
+bash
 
-### Basic Compilation
-```bash
-gcc employee_system.c -o employee_system
-```
+git clone https://github.com/yourusername/EmpiTrack.git
+cd EmpiTrack
 
-### Compilation with Different Standards
-```bash
-# C99 Standard
-gcc -std=c99 employee_system.c -o employee_system
+Build
+Standard build
+bash
 
-# C11 Standard
-gcc -std=c11 employee_system.c -o employee_system
+make
 
-# C17 Standard
-gcc -std=c17 employee_system.c -o employee_system
-```
+Produces the executable empitrack in the project root.
+Debug build
+bash
 
-### Using Makefile
-```bash
-# If Makefile is provided
-make                # Build the program
-make debug          # Build with debug symbols
-make release        # Build with optimizations
-make clean          # Clean build files
-make test           # Run tests
-```
+make clean
+make CFLAGS="-Wall -Wextra -pedantic -std=c17 -O0 -g"
 
-##  Usage
+Release build
+bash
 
-### Starting the Program
-```bash
-./employee_system
-```
+make clean
+make CFLAGS="-Wall -Wextra -pedantic -std=c17 -O3"
 
-### Command Line Arguments
-```bash
-# Load specific data file
-./employee_system --file employees.dat
+Clean
+bash
 
-# Start with specific capacity
-./employee_system --capacity 100
+make clean
 
-# Run in silent mode (no welcome banner)
-./employee_system --silent
+Full build guide: docs/BUILD_STEPS.md
+Usage
 
-# Display help
-./employee_system --help
-```
+Run from the project root:
+bash
 
-### Interactive Menu
-```
+./empitrack
+
+Command-line options
+Option	Description
+--file <path>	Load a specific database file
+--capacity <n>	Set the initial employee array capacity
+--silent	Suppress the welcome banner
+--help	Show usage information
+
+Examples:
+bash
+
+./empitrack --file data/employees.dat
+./empitrack --capacity 100
+./empitrack --silent
+
+Menu Reference
+text
+
 ╔══════════════════════════════════════╗
-║   EMPLOYEE MANAGEMENT SYSTEM v1.0    ║
+║   EMPITRACK EMPLOYEE SYSTEM v1.0     ║
 ╠══════════════════════════════════════╣
 ║  1. Add New Employee                 ║
 ║  2. Display All Employees            ║
-║  3. Search Employee by ID            ║
+║  3. Search Employee                  ║
 ║  4. Update Employee Information      ║
 ║  5. Delete Employee                  ║
 ║  6. Save Data to File                ║
 ║  7. Load Data from File              ║
 ║  8. Export to CSV                    ║
-║  9. Generate Report                  ║
+║  9. Sort Employees                   ║
 ║ 10. System Statistics                ║
 ║  0. Exit                             ║
 ╚══════════════════════════════════════╝
-Enter your choice: 
-```
 
-##  Code Flow
+Option	Action
+1	Add a new employee (auto-generated ID)
+2	List all employees in a formatted table
+3	Search by ID, name, or department
+4	Update an existing employee (blank = keep current)
+5	Delete an employee (with confirmation)
+6	Save database to a file
+7	Load database from a file
+8	Export records to CSV
+9	Sort records by ID, name, salary, or department
+10	Display system-wide statistics
+0	Exit (auto-saves and frees memory)
+Data Storage
+Text Database Format
 
-### Main Program Flow
-```mermaid
-sequenceDiagram
-    participant User
-    participant Main
-    participant System
-    participant FileIO
-    participant Memory
-    
-    User->>Main: Start Program
-    Main->>System: Initialize EmployeeSystem
-    System->>Memory: malloc() initial capacity
-    Memory-->>System: Allocated memory
-    System->>FileIO: Check for saved data
-    FileIO-->>System: Load existing data
-    
-    loop User Interaction
-        User->>Main: Select Menu Option
-        Main->>System: Execute Operation
-        System-->>Main: Operation Result
-        Main-->>User: Display Result
-    end
-    
-    User->>Main: Select Exit
-    Main->>FileIO: Auto-save data
-    FileIO-->>Main: Save confirmation
-    Main->>Memory: free() all memory
-    Main-->>User: Exit Program
-```
+employees.dat is a pipe-delimited text file:
+text
 
-### Add Employee Flow
-```
-1. User selects "Add Employee"
-2. System validates current capacity
-   └── If full, realloc() more memory
-3. Prompt for employee details:
-   ├── Auto-generate ID
-   ├── Enter name (validation)
-   ├── Enter department
-   ├── Enter salary (min/max check)
-   ├── Select level from enum
-   ├── Set status (default: ACTIVE)
-   ├── Enter email (format validation)
-   └── Enter phone (format validation)
-4. Create Employee structure
-5. Add to dynamic array
-6. Increment count
-7. Display success message
-```
+# EmpiTrack Database v1.0
+# ID|NAME|DEPT|SALARY|LEVEL|STATUS|EMAIL|PHONE|JOIN_DATE
+1|John Doe|Engineering|50000.00|Senior|Active|john@company.com|+91-9876543210|1717000000
+2|Alice Smith|HR|45000.00|Mid-Level|On Leave|alice@company.com|+91-9123456780|1717100000
 
-### Search Employee Flow
-```
-1. User selects "Search Employee"
-2. Choose search type:
-   ├── By ID (exact match)
-   ├── By Name (partial match)
-   └── By Department (partial match)
-3. Enter search term
-4. Linear search through array
-5. If found:
-   └── Display formatted employee info
-6. If not found:
-   └── Display "Employee not found"
-7. Return to main menu
-```
+CSV Export Format
 
-### Simplified Single File Version
-For the mini system, everything is in `employee_system.c`:
-```c
-// employee_system.c structure:
-// 1. Include headers
-// 2. Define constants and macros
-// 3. Define enums and structs
-// 4. Global variables (if any)
-// 5. Function prototypes
-// 6. Function implementations
-// 7. Main function
-```
+employees.csv is a standard comma-separated file:
+csv
 
-##  API Documentation
+ID,Name,Department,Salary,Level,Status,Email,Phone,JoinDate
+1,John Doe,Engineering,50000.00,Senior,Active,john@company.com,+91-9876543210,2026-01-15 09:30:00
 
-### Core Functions
+Backup
 
-#### System Initialization
-```c
-/**
- * Initialize the employee system
- * @param system Pointer to EmployeeSystem structure
- * @param initial_capacity Initial capacity for employee array
- * @return 0 on success, -1 on failure
- */
-int init_system(EmployeeSystem *system, int initial_capacity);
-```
+Before delete and add operations, a employees.dat.bak snapshot is created automatically.
+Architecture
+text
 
-#### Employee Management
-```c
-/**
- * Add a new employee to the system
- * @param system Pointer to EmployeeSystem
- * @param emp Employee data to add
- * @return Employee ID on success, -1 on failure
- */
-int add_employee(EmployeeSystem *system, const Employee *emp);
+                    +---------------------------+
+                    |        EmpiTrack          |
+                    |   Employee Database App   |
+                    +-------------+-------------+
+                                  |
+                    +-------------+-------------+
+                    |                           |
+             +------+------+             +------+------+
+             |  Database   |             |  File I/O   |
+             |  (in-RAM)   |             |  (disk)     |
+             +------+------+             +------+------+
+                    |                           |
+                    +-------------+-------------+
+                                  |
+                    +-------------+-------------+
+                    |       Menu / UI Layer     |
+                    +---------------------------+
+                                  |
+                    +-------------+-------------+
+                    |    Raspberry Pi 5 OS      |
+                    +---------------------------+
 
-/**
- * Find employee by ID
- * @param system Pointer to EmployeeSystem
- * @param id Employee ID to search for
- * @return Pointer to employee if found, NULL otherwise
- */
-Employee* find_employee(EmployeeSystem *system, int id);
+Module Responsibilities
+Module	Responsibility
+main.c	Program entry, CLI parsing, load/save orchestration
+employee.c	Employee struct I/O, enums, formatted printing
+database.c	Dynamic array, CRUD, search, sort, statistics
+file_ops.c	Persistence, CSV export, backup
+menu.c	Interactive console menu
+utils.c	Input helpers, validation, string utilities
+Testing
 
-/**
- * Delete employee by ID
- * @param system Pointer to EmployeeSystem
- * @param id Employee ID to delete
- * @return 0 on success, -1 on failure
- */
-int delete_employee(EmployeeSystem *system, int id);
-```
+EmpiTrack includes a unit-test target and documented manual test cases.
+Run unit tests
+bash
 
-#### File Operations
-```c
-/**
- * Save employee data to file
- * @param system Pointer to EmployeeSystem
- * @param filename Name of file to save to
- * @return Number of employees saved, -1 on error
- */
-int save_to_file(EmployeeSystem *system, const char *filename);
+make test
+./test_empitrack
 
-/**
- * Load employee data from file
- * @param system Pointer to EmployeeSystem
- * @param filename Name of file to load from
- * @return Number of employees loaded, -1 on error
- */
-int load_from_file(EmployeeSystem *system, const char *filename);
-```
+Memory check
+bash
 
-### Function Pointers Example
-```c
-// Define function pointer type for menu operations
-typedef void (*MenuFunction)(EmployeeSystem*);
+valgrind --leak-check=full --show-leak-kinds=all ./empitrack
 
-// Array of function pointers for menu operations
-MenuFunction menu_functions[] = {
-    add_employee_menu,
-    display_employees_menu,
-    search_employee_menu,
-    update_employee_menu,
-    delete_employee_menu,
-    save_data_menu,
-    load_data_menu
-};
+Expected output ends with:
+text
 
-// Usage in menu system
-void execute_menu_option(EmployeeSystem *system, int choice) {
-    if (choice >= 1 && choice <= 7) {
-        menu_functions[choice - 1](system);
-    }
-}
-```
+All heap blocks were freed -- no leaks are possible
 
-##  Memory Management
+Static analysis
+bash
 
-### Dynamic Array Implementation
-```c
-// Initial allocation
-system->employees = (Employee*)malloc(initial_capacity * sizeof(Employee));
-if (!system->employees) {
-    fprintf(stderr, "Memory allocation failed!\n");
-    return -1;
-}
+cppcheck --enable=all --inconclusive src/
 
-// Reallocation when full
-if (system->count >= system->capacity) {
-    int new_capacity = system->capacity * 2;
-    Employee *temp = (Employee*)realloc(system->employees, 
-                                       new_capacity * sizeof(Employee));
-    if (!temp) {
-        fprintf(stderr, "Memory reallocation failed!\n");
-        return -1;
-    }
-    system->employees = temp;
-    system->capacity = new_capacity;
-}
+Full test plan: docs/TESTING_METHODS.md
+Documentation
+Document	Purpose
+docs/BUILD_STEPS.md	Complete build & installation guide
+docs/HARDWARE_DETAILS.md	Raspberry Pi 5 hardware specification & BOM
+docs/TESTING_METHODS.md	Unit, integration, and hardware tests
+Contributing
 
-// Proper cleanup
-void cleanup_system(EmployeeSystem *system) {
-    if (system->employees) {
-        free(system->employees);
-        system->employees = NULL;
-    }
-    system->count = 0;
-    system->capacity = 0;
-}
-```
+Contributions are welcome.
 
-### Memory Usage Pattern
-```
-┌─────────────────────────────────────────┐
-│        Memory Layout Example            │
-├─────────────────────────────────────────┤
-│ System starts with capacity: 10        │
-│ Each Employee: ~256 bytes              │
-│ Initial memory: 10 * 256 = 2.5 KB      │
-│                                         │
-│ When adding 11th employee:             │
-│ 1. Check count >= capacity             │
-│ 2. Double capacity: 10 → 20            │
-│ 3. realloc() to 20 * 256 = 5 KB        │
-│ 4. Add new employee                    │
-└─────────────────────────────────────────┘
-```
+    Fork the repository
 
-##  Testing
+    Create a feature branch
+    bash
 
-### Unit Testing
-```bash
-# Compile with test suite
-gcc -o test_system employee_system.c test_main.c
-./test_system
-```
+    git checkout -b feature/YourFeature
 
-### Test Cases
-```c
-// Sample test function
-void test_add_employee() {
-    EmployeeSystem system;
-    init_system(&system, 5);
-    
-    Employee emp = {
-        .id = 1,
-        .name = "John Doe",
-        .department = "Engineering",
-        .salary = 50000.0,
-        .level = SENIOR,
-        .status = ACTIVE
-    };
-    
-    int result = add_employee(&system, &emp);
-    assert(result == 1); // ID should be 1
-    assert(system.count == 1);
-    
-    cleanup_system(&system);
-    printf("✓ test_add_employee passed\n");
-}
-```
+    Commit your changes
+    bash
 
-### Manual Testing Commands
-```bash
-# Test adding employees
-echo -e "1\nJohn Doe\nEngineering\n50000\n2\n1\njohn@company.com\n1234567890\n" | ./employee_system
+    git commit -m 'Add YourFeature'
 
-# Test searching
-echo -e "3\n1\n" | ./employee_system
+    Push the branch
+    bash
 
-# Test file operations
-echo -e "6\ntest.dat\n7\ntest.dat\n" | ./employee_system
-```
+    git push origin feature/YourFeature
 
-##  Extending the System
+    Open a Pull Request
 
-### Adding New Features
+Code Style
 
-#### 1. Sorting Functionality
-```c
-// Function pointer for comparison
-typedef int (*CompareFunc)(const Employee*, const Employee*);
+    Follow the existing formatting and naming conventions
 
-// Comparison functions
-int compare_by_salary(const Employee *a, const Employee *b) {
-    if (a->salary < b->salary) return -1;
-    if (a->salary > b->salary) return 1;
-    return 0;
-}
+    Add function-level comments for new code
 
-int compare_by_name(const Employee *a, const Employee *b) {
-    return strcmp(a->name, b->name);
-}
+    Validate all user input
 
-// Generic sort function
-void sort_employees(EmployeeSystem *system, CompareFunc compare) {
-    qsort(system->employees, system->count, sizeof(Employee), 
-          (int (*)(const void*, const void*))compare);
-}
-```
+    Handle errors explicitly (-1 return, stderr messages)
 
-#### 2. Advanced Search
-```c
-// Search by multiple criteria
-typedef struct {
-    int id;
-    char name[MAX_NAME_LEN];
-    char department[MAX_DEPT_LEN];
-    float min_salary;
-    float max_salary;
-} SearchCriteria;
+    Test changes locally before opening a PR
 
-Employee** search_employees(EmployeeSystem *system, SearchCriteria *criteria, int *result_count) {
-    // Implement multi-criteria search
-    // Return array of matching employees
-}
-```
+License
 
-#### 3. Report Generation
-```c
-void generate_report(EmployeeSystem *system, const char *report_type) {
-    if (strcmp(report_type, "department") == 0) {
-        generate_department_report(system);
-    } else if (strcmp(report_type, "salary") == 0) {
-        generate_salary_report(system);
-    } else if (strcmp(report_type, "status") == 0) {
-        generate_status_report(system);
-    }
-}
-```
+This project is released under the MIT License. See LICENSE for details.
+Acknowledgements
 
-##  Troubleshooting
+    Raspberry Pi Foundation — hardware and OS platform
 
-### Common Compilation Errors
+    GCC and GNU Make — build toolchain
 
-**1. Undefined Reference Errors**
-```bash
-# Error: undefined reference to `some_function'
-# Solution: Ensure all function implementations are present
-# Check function names match prototypes exactly
-```
+    The C Programming Language (Kernighan & Ritchie) — design inspiration
 
-**2. Memory Allocation Errors**
-```bash
-# Error: malloc: corrupted top size
-# Solution: Check for buffer overflows
-# Use valgrind for memory debugging
-valgrind ./employee_system
-```
-
-**3. File Permission Errors**
-```bash
-# Error: Cannot open file for writing
-# Solution: Check file permissions
-chmod +w employees.dat
-# Or run with appropriate permissions
-```
-
-### Debugging Tips
-```bash
-# Compile with debug symbols
-gcc -g -o employee_system employee_system.c
-
-# Run with gdb
-gdb ./employee_system
-
-# Common gdb commands:
-# break main           # Set breakpoint at main
-# run                 # Start program
-# next                # Execute next line
-# print variable      # Print variable value
-# backtrace           # Show call stack
-```
-
-### Valgrind Memory Check
-```bash
-# Install valgrind
-sudo apt install valgrind  # Ubuntu/Debian
-
-# Run memory check
-valgrind --leak-check=full ./employee_system
-
-# Expected output: "All heap blocks were freed -- no leaks are possible"
-```
-
-##  Contributing
-
-![Contributions Welcome](https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=for-the-badge)
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Contribution Guidelines
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### Code Style
-- Follow the existing code formatting
-- Add comments for new functions
-- Include error handling
-- Test your changes thoroughly
-
-##  Learning Resources
-
-### C Programming Concepts Covered
-1. **Variables & Data Types**: int, float, char, arrays, strings
-2. **Functions**: Parameters, return values, prototypes
-3. **Structures**: Employee struct, nested structures
-4. **Pointers**: Pointer arithmetic, function pointers
-5. **Dynamic Memory**: malloc, calloc, realloc, free
-6. **File Handling**: fopen, fread, fwrite, fclose
-7. **Control Flow**: if-else, switch, loops
-8. **Advanced Topics**: enums, typedef, unions (optional)
-
-### Further Reading
-- [The C Programming Language (K&R)](https://en.wikipedia.org/wiki/The_C_Programming_Language)
-- [C Programming FAQs](http://c-faq.com/)
-- [GCC Documentation](https://gcc.gnu.org/onlinedocs/)
-- [C Reference on cppreference](https://en.cppreference.com/w/c)
-
----
-
-**Happy Coding!** 💻
-
-*This project demonstrates professional C programming practices suitable for educational purposes and real-world applications.*
+EmpiTrack – Raspberry Pi 5 Based Employee Database Management System
+Built with C, for the edge.
