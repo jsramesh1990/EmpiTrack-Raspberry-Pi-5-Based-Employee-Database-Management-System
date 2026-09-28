@@ -1,135 +1,245 @@
-# EmpiTrack – Raspberry Pi 5 Based Employee Database Management System
+### Raspberry Pi 5 Based Employee Database Management System
 
-A console-based Employee Database Management System written in **pure C**, designed to run on the **Raspberry Pi 5 (4 GB RAM)**. EmpiTrack demonstrates professional C programming practices — dynamic memory management, file handling, function pointers, modular design, and comprehensive input validation — wrapped in a clean interactive menu.
-
-![Language](https://img.shields.io/badge/language-C-blue.svg)
-![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi%205-red.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Build](https://img.shields.io/badge/build-GCC%20%7C%20Make-success.svg)
+A modular, console-based **Employee Database Management System** written in **pure C** and deployed on the **Raspberry Pi 5 (4 GB RAM)**. EmpiTrack demonstrates professional C programming — dynamic memory, file handling, structured menus, input validation, and clean shutdown — in a compact, real-world application.
 
 ---
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Features](#features)
-- [Hardware Requirements](#hardware-requirements)
-- [Project Structure](#project-structure)
-- [Installation](#installation)
-- [Build](#build)
-- [Usage](#usage)
-- [Menu Reference](#menu-reference)
-- [Data Storage](#data-storage)
-- [Architecture](#architecture)
-- [Testing](#testing)
-- [Documentation](#documentation)
-- [Contributing](#contributing)
-- [License](#license)
+1. [Project Information](#1-project-information)
+2. [Introduction](#2-introduction)
+3. [Objectives](#3-objectives)
+4. [Features](#4-features)
+5. [Hardware Requirements](#5-hardware-requirements)
+6. [Software Requirements](#6-software-requirements)
+7. [System Architecture](#7-system-architecture)
+8. [Project Structure](#8-project-structure)
+9. [Installation](#9-installation)
+10. [Build Instructions](#10-build-instructions)
+11. [Running the Program](#11-running-the-program)
+12. [Menu Reference](#12-menu-reference)
+13. [Data Storage Format](#13-data-storage-format)
+14. [Testing](#14-testing)
+15. [Documentation](#15-documentation)
+16. [Troubleshooting](#16-troubleshooting)
+17. [Future Enhancements](#17-future-enhancements)
+18. [License](#18-license)
+19. [Author](#19-author)
 
 ---
 
-## Overview
+## 1. Project Information
 
-**EmpiTrack** is a lightweight, terminal-driven Employee Database Management System built for the Raspberry Pi 5. It provides a full **CRUD** interface (Create, Read, Update, Delete) for managing employee records, with persistent storage in a portable, human-readable database file and CSV export for external use.
-
-The project is intended for:
-
-- Educational demonstration of advanced C concepts
-- Embedded / edge deployment on Raspberry Pi hardware
-- Small-scale HR record keeping on a standalone device
-- Learning structured, modular C project design
-
----
-
-## Features
-
-### Core Operations
-- **Add** new employees with full details (ID, name, department, salary, level, status, email, phone)
-- **Display** all employees in a formatted table
-- **Search** by ID (exact), name (partial), or department (partial)
-- **Update** employee records in-place
-- **Delete** employees with confirmation prompt
-- **Save / Load** data to/from a text database file
-- **Export** to CSV for use in Excel, LibreOffice, or Python
-- **Sort** by ID, name, salary, or department
-- **Statistics** — counts, averages, min/max salary, per-level totals
-
-### Engineering Highlights
-- **Dynamic memory** with `malloc`, `calloc`, `realloc`, and `free` — no fixed upper limit on employee count
-- **Modular design** — separation across `employee`, `database`, `file_ops`, `menu`, `utils`
-- **Input validation** for email, phone, salary, and menu choices
-- **Auto-save on exit** and **backup creation** before destructive operations
-- **Portable text format** (`|`-delimited) with escape-safe fields
-- **Clean shutdown** — all heap memory is released (Valgrind-clean)
+| Field | Details |
+|---|---|
+| **Project Title** | EmpiTrack – Raspberry Pi 5 Based Employee Database Management System |
+| **Language** | C (C17 standard) |
+| **Platform** | Raspberry Pi 5 – 4 GB RAM |
+| **Operating System** | Raspberry Pi OS 64-bit (Bookworm) |
+| **Compiler** | GCC |
+| **Build Tool** | GNU Make |
+| **Interface** | Console (text menu) |
+| **Storage** | Text database file (`employees.dat`) + CSV export |
+| **License** | MIT |
 
 ---
 
-## Hardware Requirements
+## 2. Introduction
+
+EmpiTrack is a compact yet complete employee record management system built to run on the Raspberry Pi 5. It provides a full **CRUD** interface — Create, Read, Update, Delete — for employee data, with persistent storage on disk and CSV export for use with spreadsheets or data analysis tools.
+
+The project is intended as:
+
+- A practical, portable HR utility for standalone devices
+- A teaching reference for structured C programming on embedded Linux
+- A foundation for extending into networked or GUI-based variants
+
+---
+
+## 3. Objectives
+
+- Provide a clean, menu-driven console application for managing employee records
+- Demonstrate modular C project design with separated headers and sources
+- Apply dynamic memory management for unbounded record counts
+- Persist data reliably to disk with safe, human-readable formats
+- Validate all user input and handle errors gracefully
+- Run efficiently on low-power ARM hardware (Raspberry Pi 5)
+
+---
+
+## 4. Features
+
+### 4.1 Core Features
+- Add new employees (auto-generated ID)
+- Display all employees in a formatted table
+- Search by **ID**, **name** (partial), or **department** (partial)
+- Update existing employee records
+- Delete employees with confirmation prompt
+- Save / load the database to/from a text file
+- Export records to **CSV**
+- Sort by ID, name, salary, or department
+- Generate system statistics (counts, averages, salary range)
+
+### 4.2 Technical Features
+- Dynamic array growth via `realloc`
+- Clean heap cleanup on exit (Valgrind-verified)
+- Modular source layout (six modules)
+- Input validation (email, phone, salary, menu choices)
+- Automatic backup before destructive operations
+- Auto-save on program exit
+- Portable text format with escaped fields
+
+---
+
+## 5. Hardware Requirements
 
 | Component | Specification |
 |---|---|
-| Board | **Raspberry Pi 5 – 4 GB RAM** |
+| Board | Raspberry Pi 5 – 4 GB RAM |
 | CPU | Broadcom BCM2712, quad-core Arm Cortex-A76 @ 2.4 GHz |
 | RAM | 4 GB LPDDR4X-4267 |
 | Storage | 32 GB+ microSD (Class A2) or NVMe SSD |
-| OS | Raspberry Pi OS 64-bit (Bookworm) |
-| Power | Official 27W USB-C PD supply (5V/5A) |
+| Power Supply | Official 27W USB-C PD (5V/5A) |
 | Cooling | Active Cooler recommended |
-| Input | USB keyboard |
-| Output | HDMI monitor |
+| Keyboard | USB keyboard |
+| Display | HDMI monitor (micro-HDMI to HDMI cable) |
+| Network | Not required (offline-capable) |
 
-Full hardware details: [`docs/HARDWARE_DETAILS.md`](docs/HARDWARE_DETAILS.md)
+Full hardware breakdown: [`docs/HARDWARE_DETAILS.md`](docs/HARDWARE_DETAILS.md)
 
 ---
 
-## Project Structure
+## 6. Software Requirements
+
+| Software | Version / Notes |
+|---|---|
+| Raspberry Pi OS | 64-bit Bookworm or later |
+| GCC | 10 or higher |
+| GNU Make | 4.x |
+| Bash | Default shell |
+| Valgrind | Optional, for memory testing |
+| Git | Optional, for cloning |
+
+---
+
+## 7. System Architecture
 
 ```text
+                +-----------------------------------+
+                |            EMPITRACK              |
+                |  Employee Database Management     |
+                +----------------+------------------+
+                                 |
+                                 v
+                +-----------------------------------+
+                |         Raspberry Pi 5            |
+                |            4 GB RAM               |
+                +----------------+------------------+
+                                 |
+                +----------------+------------------+
+                |                                   |
+                v                                   v
+        +---------------+                   +---------------+
+        | USB Keyboard  |                   | HDMI Monitor  |
+        +-------+-------+                   +-------+-------+
+                |                                   |
+                +----------------+------------------+
+                                 |
+                                 v
+                +-----------------------------------+
+                |     EmpiTrack C Application       |
+                |  (Menu + CRUD + File Handling)    |
+                +----------------+------------------+
+                                 |
+                +----------------+------------------+
+                |                |                  |
+                v                v                  v
+        +-------------+  +-------------+   +-------------+
+        | Add / Edit  |  | Search /    |   | Delete /    |
+        | Employee    |  | Sort        |   | Statistics  |
+        +------+------+  +------+------+   +------+------+
+               |                |                 |
+               +----------------+-----------------+
+                                 |
+                                 v
+                +-----------------------------------+
+                |         employees.dat             |
+                |      (Text Database File)         |
+                +----------------+------------------+
+                                 |
+                                 v
+                +-----------------------------------+
+                |         microSD Card              |
+                +-----------------------------------+
+
+Module Diagram
+text
+
+    main.c
+      |
+      +---> database  <---> file_ops
+      |         ^              ^
+      |         |              |
+      +---> menu ---------------+
+                |
+                v
+             employee  <--->  utils
+
+8. Project Structure
+text
+
 EmpiTrack/
 ├── Makefile
 ├── README.md
 ├── LICENSE
+├── .gitignore
 ├── src/
-│   ├── main.c            # Entry point, CLI argument parsing
-│   ├── employee.h/.c     # Employee struct, enums, input & display
-│   ├── database.h/.c     # Dynamic array, CRUD, search, statistics
-│   ├── file_ops.h/.c     # Save / Load / CSV export / backup
-│   ├── menu.h/.c         # Interactive menu loop
-│   └── utils.h/.c        # Validation, I/O helpers, string utilities
+│   ├── main.c            # Entry point, CLI parsing
+│   ├── employee.h
+│   ├── employee.c        # Employee struct, enums, I/O
+│   ├── database.h
+│   ├── database.c        # Dynamic array, CRUD, search, stats
+│   ├── file_ops.h
+│   ├── file_ops.c        # Save / Load / CSV / Backup
+│   ├── menu.h
+│   ├── menu.c            # Interactive console menu
+│   ├── utils.h
+│   └── utils.c           # Validation, string helpers
 ├── tests/
 │   └── test_employee.c   # Unit tests
 ├── data/
-│   └── employees.dat     # Runtime database file (created on first save)
+│   └── employees.dat     # Runtime database (created on first save)
 └── docs/
     ├── BUILD_STEPS.md
     ├── HARDWARE_DETAILS.md
     └── TESTING_METHODS.md
 
-Installation
-1. Update the system
+9. Installation
+Step 1 — Update the system
 bash
 
 sudo apt update
 sudo apt full-upgrade -y
 
-2. Install build tools
+Step 2 — Install build tools
 bash
 
 sudo apt install build-essential git make gdb valgrind -y
 
-3. Clone the repository
+Step 3 — Clone or copy the project
 bash
 
 git clone https://github.com/yourusername/EmpiTrack.git
 cd EmpiTrack
 
-Build
+Or copy the EmpiTrack folder manually into /home/pi/.
+10. Build Instructions
 Standard build
 bash
 
 make
 
-Produces the executable empitrack in the project root.
+Produces the executable empitrack.
 Debug build
 bash
 
@@ -142,36 +252,33 @@ bash
 make clean
 make CFLAGS="-Wall -Wextra -pedantic -std=c17 -O3"
 
-Clean
+Clean build artifacts
 bash
 
 make clean
 
-Full build guide: docs/BUILD_STEPS.md
-Usage
-
-Run from the project root:
+Detailed build guide: docs/BUILD_STEPS.md
+11. Running the Program
 bash
 
 ./empitrack
 
-Command-line options
+Command-Line Options
 Option	Description
---file <path>	Load a specific database file
---capacity <n>	Set the initial employee array capacity
+--file <path>	Use a specific database file
+--capacity <n>	Set initial employee array capacity
 --silent	Suppress the welcome banner
 --help	Show usage information
 
-Examples:
+Examples
 bash
 
+./empitrack
 ./empitrack --file data/employees.dat
 ./empitrack --capacity 100
 ./empitrack --silent
 
----
-
-Menu Reference
+12. Menu Reference
 text
 
 ╔══════════════════════════════════════╗
@@ -191,21 +298,21 @@ text
 ╚══════════════════════════════════════╝
 
 Option	Action
-1	Add a new employee (auto-generated ID)
-2	List all employees in a formatted table
-3	Search by ID, name, or department
-4	Update an existing employee (blank = keep current)
-5	Delete an employee (with confirmation)
-6	Save database to a file
-7	Load database from a file
+1	Add new employee (auto-generated ID)
+2	Display all employees
+3	Search by ID / name / department
+4	Update employee information
+5	Delete employee (with confirmation)
+6	Save database to file
+7	Load database from file
 8	Export records to CSV
-9	Sort records by ID, name, salary, or department
-10	Display system-wide statistics
+9	Sort by ID, name, salary, or department
+10	Display system statistics
 0	Exit (auto-saves and frees memory)
-Data Storage
-Text Database Format
+13. Data Storage Format
+13.1 Database File — employees.dat
 
-employees.dat is a pipe-delimited text file:
+Pipe-delimited text format:
 text
 
 # EmpiTrack Database v1.0
@@ -213,124 +320,86 @@ text
 1|John Doe|Engineering|50000.00|Senior|Active|john@company.com|+91-9876543210|1717000000
 2|Alice Smith|HR|45000.00|Mid-Level|On Leave|alice@company.com|+91-9123456780|1717100000
 
-CSV Export Format
-
-employees.csv is a standard comma-separated file:
+13.2 CSV Export — employees.csv
 csv
 
 ID,Name,Department,Salary,Level,Status,Email,Phone,JoinDate
 1,John Doe,Engineering,50000.00,Senior,Active,john@company.com,+91-9876543210,2026-01-15 09:30:00
 
-Backup
+13.3 Backup
 
-Before delete and add operations, a employees.dat.bak snapshot is created automatically.
-Architecture
+Before add and delete operations, a snapshot is written to:
 text
 
-                    +---------------------------+
-                    |        EmpiTrack          |
-                    |   Employee Database App   |
-                    +-------------+-------------+
-                                  |
-                    +-------------+-------------+
-                    |                           |
-             +------+------+             +------+------+
-             |  Database   |             |  File I/O   |
-             |  (in-RAM)   |             |  (disk)     |
-             +------+------+             +------+------+
-                    |                           |
-                    +-------------+-------------+
-                                  |
-                    +-------------+-------------+
-                    |       Menu / UI Layer     |
-                    +---------------------------+
-                                  |
-                    +-------------+-------------+
-                    |    Raspberry Pi 5 OS      |
-                    +---------------------------+
+employees.dat.bak
 
-Module Responsibilities
-Module	Responsibility
-main.c	Program entry, CLI parsing, load/save orchestration
-employee.c	Employee struct I/O, enums, formatted printing
-database.c	Dynamic array, CRUD, search, sort, statistics
-file_ops.c	Persistence, CSV export, backup
-menu.c	Interactive console menu
-utils.c	Input helpers, validation, string utilities
-Testing
-
-EmpiTrack includes a unit-test target and documented manual test cases.
-Run unit tests
+14. Testing
+14.1 Run Unit Tests
 bash
 
 make test
 ./test_empitrack
 
-Memory check
+Expected:
+text
+
+PASS: test_add_employee
+PASS: test_find_employee
+PASS: test_delete_employee
+All unit tests passed.
+
+14.2 Memory Check
 bash
 
 valgrind --leak-check=full --show-leak-kinds=all ./empitrack
 
-Expected output ends with:
+Expected:
 text
 
 All heap blocks were freed -- no leaks are possible
 
-Static analysis
+14.3 Static Analysis
 bash
 
 cppcheck --enable=all --inconclusive src/
 
 Full test plan: docs/TESTING_METHODS.md
-Documentation
-Document	Purpose
-docs/BUILD_STEPS.md	Complete build & installation guide
-docs/HARDWARE_DETAILS.md	Raspberry Pi 5 hardware specification & BOM
+15. Documentation
+Document	Description
+docs/BUILD_STEPS.md	Build, install, and auto-start guide
+docs/HARDWARE_DETAILS.md	Raspberry Pi 5 hardware spec and BOM
 docs/TESTING_METHODS.md	Unit, integration, and hardware tests
-Contributing
+16. Troubleshooting
+Problem	Cause	Solution
+gcc: command not found	Build tools missing	sudo apt install build-essential
+make: command not found	Make missing	sudo apt install make
+undefined reference	Missing source file	Verify all .c files included in Makefile
+employees.dat not found	Wrong working directory	Run from project root or pass --file
+Permission denied on run	Executable bit missing	chmod +x empitrack
+High CPU temperature	Insufficient cooling	Install Active Cooler; check vcgencmd measure_temp
+Undervoltage warning	Weak power supply	Use official 27W USB-C PD supply
+Data not saving	Read-only path	Check file permissions with ls -l
+17. Future Enhancements
 
----
+    Graphical interface using GTK or Qt
 
-Contributions are welcome.
+    SQLite backend for scalable storage
 
-    Fork the repository
+    Multi-user support with authentication
 
-    Create a feature branch
-    bash
+    Network access via REST API
 
-    git checkout -b feature/YourFeature
+    Web dashboard on the Pi 5
 
-    Commit your changes
-    bash
+    Payroll and leave management extensions
 
-    git commit -m 'Add YourFeature'
+    Data encryption for sensitive records
 
-    Push the branch
-    bash
+    Automated PDF report generation
 
-    git push origin feature/YourFeature
 
-    Open a Pull Request
-
-Code Style
-
-    Follow the existing formatting and naming conventions
-
-    Add function-level comments for new code
-
-    Validate all user input
-
-    Handle errors explicitly (-1 return, stderr messages)
-
-    Test changes locally before opening a PR
-
----
-
-    Raspberry Pi Foundation — hardware and OS platform
-
-    GCC and GNU Make — build toolchain
-
-    The C Programming Language (Kernighan & Ritchie) — design inspiration
-
-EmpiTrack – Raspberry Pi 5 Based Employee Database Management System
 Built with C, for the edge.
+text
+
+
+---
